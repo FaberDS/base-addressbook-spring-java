@@ -69,3 +69,14 @@ Simple addressbook to help users to handle contacts to people.
     - company
     - related to (Contact)
 - The address could be added via geolocation.
+
+---
+# How to
+
+## Setup Postgres DB with Docker
+```
+docker pull postgres
+docker images
+docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+
+```
