@@ -3,6 +3,7 @@ package at.schuele.addessbookspringjava.controller;
 import at.schuele.addessbookspringjava.errors.NoContactFoundException;
 import at.schuele.addessbookspringjava.models.Contact;
 import at.schuele.addessbookspringjava.service.ContactService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +18,19 @@ public class ContactController {
     @Autowired
     ContactService contactService;
     @GetMapping
+    @Operation(summary = "Get all contacts.")
     public List<Contact> getContacts(){
         return contactService.getAllContacts();
     }
 
     @GetMapping("/{contact_id}")
+    @Operation(summary = "Get contact by id. If the contact not exist NoContactFoundException exception will be thrown")
     public Contact getContactById(@PathVariable("contact_id") long contactId) {
         Optional<Contact> result = contactService.getContactById(contactId);
         if (result.isPresent()){
             return result.get();
         }
-        throw new NoContactFoundException("No such user");
+        throw new NoContactFoundException("No user found with " + String.valueOf(contactId));
     }
 
     @ExceptionHandler(NoContactFoundException.class)
@@ -42,6 +45,8 @@ public class ContactController {
 
     //creating post mapping that post the book detail in the database
     @PostMapping
+    @Operation(summary = "Creates a contact with the passed details.")
+    @ResponseStatus(HttpStatus.CREATED)
     private long saveContact(@RequestBody Contact contact)
     {
         contactService.createContact(contact);
@@ -49,11 +54,15 @@ public class ContactController {
     }
 
     @DeleteMapping("/{contact_id}")
+    @Operation(summary = "Delete Contact by contact id.")
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     private void deleteContact(@PathVariable("contact_id") long contactId) {
         contactService.deleteContact(contactId);
     }
 
     @PutMapping("/{contact_id}")
+    @Operation(summary = "Update Contact by contact id.")
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     private Contact updateContact(@PathVariable("contact_id") long contactId, @RequestBody Contact contact) {
         return contactService.updateContact(contactId,contact);
     }
