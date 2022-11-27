@@ -11,4 +11,7 @@ import java.util.List;
 public interface ContactRepository extends CrudRepository<Contact, Long> {
 
     List<Contact> findByLastName(@Param("name") String name);
+    List<Contact> findByFirstName(@Param("name") String name);
+    List<Contact> findByLastNameAndFirstName(@Param("lastName") String lastName,@Param("firstName") String firstName);
+    List<Contact> findByFirstNameAndLastName(@Param("firstName") String firstName,@Param("lastName") String lastName);
 }
