@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+  addressbook:
+    image: schuele/addressbook:latest
+    ports:
+      - "8001:8888"
+    volumes:
+      - addressbook-data:/var/lib/addressbook
+    depends_on:
+      - db
+    networks:
+      - addressbook-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=secret
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+  db:
+   container_name: postgres_container
+   image: postgres:14.0
+   restart: always
+   environment:
+     - POSTGRES_USER=admin
+     - POSTGRES_PASSWORD=secret
+   ports:
+     - "5432:5432"
+   volumes:
+     - db-data:/var/lib/postgresql/data
+   networks:
+     - addressbook-network
+
+  pgadmin:
+   container_name: pgadmin4_container
+   image: dpage/pgadmin4:5.5
+   restart: always
+   environment:
+     PGADMIN_DEFAULT_EMAIL: denis@denis.denis
+     PGADMIN_DEFAULT_PASSWORD: denis
+     PGADMIN_LISTEN_PORT: 80
+   networks:
+    - addressbook-network
+   ports:
+     - "8088:80"
+   volumes:
+     - pgadmin-data:/var/lib/pgadmin
+volumes:
+  db-data:
+  pgadmin-data:
+  addressbook-data:
+
+networks:
+  addressbook-network:
