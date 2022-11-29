@@ -1,5 +1,6 @@
 package at.schuele.addessbookspringjava.service.impl;
 
+import at.schuele.addessbookspringjava.errors.NoContactFoundException;
 import at.schuele.addessbookspringjava.models.Contact;
 import at.schuele.addessbookspringjava.models.enums.ContactSearchFields;
 import at.schuele.addessbookspringjava.repository.ContactRepository;
@@ -65,17 +66,12 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public void deleteContact(long contactId) {
-        repository.deleteById(contactId);
+            repository.deleteById(contactId);
     }
 
     @Override
-    public Contact updateContact(long contactId,Contact contact){
-        Optional<Contact> contactToUpdate = repository.findById(contactId);
-        if(contactToUpdate.isPresent()) {
-            contact.setId(contactToUpdate.get().getId());
-        }
+    public Contact save(Contact contact) {
         return repository.save(contact);
     }
-
 
 }

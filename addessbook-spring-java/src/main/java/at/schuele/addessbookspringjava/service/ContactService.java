@@ -20,5 +20,5 @@ public interface ContactService {
 
     void deleteContact(long contactId);
 
-    Contact updateContact(long contactId,Contact contact);
+    Contact save(Contact contact);
 }

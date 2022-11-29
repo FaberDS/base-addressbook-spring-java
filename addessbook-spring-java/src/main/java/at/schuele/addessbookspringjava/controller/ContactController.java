@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,23 +49,36 @@ public class ContactController {
     @PostMapping
     @Operation(summary = "Creates a contact with the passed details.")
     @ResponseStatus(HttpStatus.CREATED)
-    private long saveContact(@RequestBody Contact contact)
+    private ResponseEntity<Object> saveContact(@RequestBody Contact contact)
     {
-        contactService.createContact(contact);
-        return contact.getId();
+        Contact newContact = contactService.createContact(contact);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newContact.getId()).toUri();
+        return ResponseEntity.created(location).build();
     }
 
     @DeleteMapping("/{contact_id}")
     @Operation(summary = "Delete Contact by contact id.")
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     private void deleteContact(@PathVariable("contact_id") long contactId) {
-        contactService.deleteContact(contactId);
+        if(contactService.getContactById(contactId).isPresent()) {
+            contactService.deleteContact(contactId);
+        } else {
+            throw new NoContactFoundException(String.format("No user found with id: %s",String.valueOf(contactId)));
+        }
+
     }
 
     @PutMapping("/{contact_id}")
     @Operation(summary = "Update Contact by contact id.")
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    private Contact updateContact(@PathVariable("contact_id") long contactId, @RequestBody Contact contact) {
-        return contactService.updateContact(contactId,contact);
+    private ResponseEntity<Object> updateContact(@PathVariable("contact_id") long contactId, @RequestBody Contact contact) {
+
+        Optional<Contact> contactToUpdate = contactService.getContactById(contactId);
+        if (contactToUpdate.isEmpty()){
+            throw new NoContactFoundException(String.format("No user found with id: %s",String.valueOf(contactId)));
+        }
+        contact.setId(contactToUpdate.get().getId());
+        contactService.save(contact);
+        return ResponseEntity.noContent().build();
     }
 }
